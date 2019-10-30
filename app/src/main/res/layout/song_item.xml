@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:paddingTop="5dp"
+              android:paddingBottom="5dp"
+              android:background="@color/colorPrimary"
+              android:layout_margin="5dp">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/song_number_textView"
+            android:layout_gravity="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            tools:text="15"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp" android:minWidth="50dp" android:gravity="center"/>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" android:layout_weight="1">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/song_name_textView"
+                tools:text="Song very very very very long name"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2" android:padding="2dp"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/song_artist_name_textView"
+                tools:text="Artist very long name"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" android:padding="2dp"/>
+    </LinearLayout>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/song_time_textView"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            tools:text="10:22"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+</LinearLayout>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_margin="5dp"
+              android:gravity="center_horizontal"
+              android:background="@color/colorPrimary" android:padding="5dp">
+
+    <ImageView
+            tools:src="@drawable/red_box"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/album_imageView" android:scaleType="center"/>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <TextView
+                tools:text="Album Name is very very very very very very long"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/album_textView"
+                android:paddingLeft="10dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:paddingRight="10dp"/>
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/artist_textView"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                tools:text="Artist"
+                android:layout_marginTop="5dp"/>
+    </LinearLayout>
+</LinearLayout>

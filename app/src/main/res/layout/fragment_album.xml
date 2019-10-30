@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".UI.AlbumFragment"
+              >
+
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="center_horizontal"
+            android:background="@color/colorPrimary"
+            android:padding="5dp">
+
+        <ImageView
+                tools:src="@drawable/red_box"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:id="@+id/album_imageView"
+                android:scaleType="fitXY"/>
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <TextView
+                    tools:text="Album Name is very very very very very very long"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/album_textView"
+                    android:paddingLeft="10dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:paddingRight="10dp"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/artist_textView"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    tools:text="Artist"
+                    android:layout_marginTop="5dp"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/genre_textView"
+                    android:layout_marginTop="15dp"
+                    tools:text="Genre"
+                    android:paddingLeft="10dp"
+                    android:textSize="10sp"
+                    android:paddingRight="10dp"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/size_textView"
+                    android:layout_marginTop="5dp"
+                    tools:text="Album size: 22"
+                    android:paddingLeft="10dp"
+                    android:textSize="10sp"
+                    android:paddingRight="10dp"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/release_date_textView"
+                    android:layout_marginTop="5dp"
+                    tools:text="Release: 18 june 2011"
+                    android:paddingLeft="10dp"
+                    android:textSize="10sp"
+                    android:layout_gravity="bottom"
+                    android:paddingRight="10dp"/>
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/copyright_textView"
+                    android:layout_marginTop="5dp"
+                    tools:text="2010 Aftermath record"
+                    android:paddingLeft="10dp"
+                    android:textSize="10sp"
+                    android:layout_gravity="bottom"
+                    android:paddingRight="10dp"/>
+        </LinearLayout>
+    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            tools:layoutManager="GridLayoutManager"
+            tools:spanCount="1"
+            tools:listitem="@layout/song_item"
+            android:foregroundGravity="center_vertical"
+            android:id="@+id/songs_recyclerView"
+    />
+
+</LinearLayout>
