@@ -1,7 +1,7 @@
 package tokovoj.itunesalbums
 
-import tokovoj.itunesalbums.Data.Results
-import tokovoj.itunesalbums.Network.SearchQueryCallback
+import tokovoj.itunesalbums.data.Results
+import tokovoj.itunesalbums.network.SearchQueryCallback
 
 interface AppModel
 {
@@ -11,7 +11,7 @@ interface AppModel
 
         fun setSongs(count: Int, items: List<Results>)
 
-        fun setErrorMessage()
+        fun setErrorMessage(code: Int)
 
         fun setConnectionLostMessage()
 
@@ -23,9 +23,9 @@ interface AppModel
 
     }
 
-    interface Presentor
+    interface Presenter
     {
-        fun searchAlbubs(query: String)
+        fun searchAlbums(query: String)
 
         fun getSongsForAlbum(id: Long)
 

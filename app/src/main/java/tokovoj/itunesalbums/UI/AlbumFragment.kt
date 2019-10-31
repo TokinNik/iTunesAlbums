@@ -12,7 +12,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import tokovoj.itunesalbums.Data.Results
+import tokovoj.itunesalbums.data.Results
 import tokovoj.itunesalbums.R
 import java.text.SimpleDateFormat
 import java.util.*
@@ -24,7 +24,6 @@ class AlbumFragment(var results: Results) : Fragment()
         const val TAG = "ALBUM_FRAGMENT"
     }
     private lateinit var root: View
-    private var mediaPlayer: MediaPlayer = MediaPlayer()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,svedInstanceState: Bundle?): View?
     {
@@ -55,12 +54,12 @@ class AlbumFragment(var results: Results) : Fragment()
         println(songs.size)
     }
 
-    fun convertToNormalDate(oldFormat: String): String?
+    private fun convertToNormalDate(oldFormat: String): String?
     {
         val format: SimpleDateFormat? = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         format?.timeZone = TimeZone.getTimeZone("UTC")
         val formatNormal: SimpleDateFormat? = SimpleDateFormat("dd.MM.yyyy")
-        val date: Date? = format?.parse(oldFormat)
+        val date: Date = format?.parse(oldFormat) ?: Date()
         return formatNormal?.format(date)
     }
 

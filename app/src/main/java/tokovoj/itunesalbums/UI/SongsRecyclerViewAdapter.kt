@@ -3,16 +3,15 @@ package tokovoj.itunesalbums.UI
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import tokovoj.itunesalbums.Data.Results
+import tokovoj.itunesalbums.data.Results
 import tokovoj.itunesalbums.R
 import java.util.concurrent.TimeUnit
 
 class SongsRecyclerViewAdapter(data: List<Results>) : RecyclerView.Adapter<SongsRecyclerViewAdapter.ViewHolder>()
 {
-    var dataList: List<Results> = data
+    private var dataList: List<Results> = data
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
     {
@@ -38,7 +37,6 @@ class SongsRecyclerViewAdapter(data: List<Results>) : RecyclerView.Adapter<Songs
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     {
-        val viev: View = itemView
         val songNameTextView: TextView = itemView.findViewById(R.id.song_name_textView)
         val songArtistNameTextView: TextView = itemView.findViewById(R.id.song_artist_name_textView)
         val songNumberTextView: TextView = itemView.findViewById(R.id.song_number_textView)

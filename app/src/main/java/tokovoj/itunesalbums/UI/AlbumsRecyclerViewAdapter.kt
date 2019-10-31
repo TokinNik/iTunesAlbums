@@ -7,12 +7,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
-import tokovoj.itunesalbums.Data.Results
+import tokovoj.itunesalbums.data.Results
 import tokovoj.itunesalbums.R
 
-class AlbumsRecyclerViewAdapter(data: List<Results>, var listener: MainActivity.OnAlbumsListIneraxtionListener) : RecyclerView.Adapter<AlbumsRecyclerViewAdapter.ViewHolder>()
+class AlbumsRecyclerViewAdapter(data: List<Results>, private var listener: MainActivity.OnAlbumsListInteractionListener) : RecyclerView.Adapter<AlbumsRecyclerViewAdapter.ViewHolder>()
 {
-    var dataList: List<Results> = data
+    private var dataList: List<Results> = data
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
     {

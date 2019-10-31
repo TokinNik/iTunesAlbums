@@ -1,7 +1,6 @@
 package tokovoj.itunesalbums.UI
 
 import android.app.AlertDialog
-import android.content.Context
 import android.content.DialogInterface
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
@@ -9,37 +8,35 @@ import android.graphics.PorterDuff
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import tokovoj.itunesalbums.AppModel
-import tokovoj.itunesalbums.Data.Results
-import tokovoj.itunesalbums.Network.Network
-import tokovoj.itunesalbums.Presentor.MainPresentor
+import tokovoj.itunesalbums.data.Results
+import tokovoj.itunesalbums.network.Network
+import tokovoj.itunesalbums.presenter.MainPresenter
 import tokovoj.itunesalbums.R
 
 class MainActivity : AppCompatActivity(), AppModel.View
 {
     private lateinit var albumsRecycler: RecyclerView
     lateinit var list: List<Results>
-    private lateinit var albumListListener: OnAlbumsListIneraxtionListener
+    private lateinit var albumListListener: OnAlbumsListInteractionListener
     private lateinit var searchButton: Button
     private lateinit var searchEditText: EditText
-    private lateinit var searchProgreeBar: ProgressBar
-    private lateinit var presentor: AppModel.Presentor
+    private lateinit var searchProgressBar: ProgressBar
+    private lateinit var presenter: AppModel.Presenter
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        presentor = MainPresentor(Network())
-        presentor.attachView(this)
+        presenter = MainPresenter(Network())
+        presenter.attachView(this)
 
-        searchProgreeBar= findViewById(R.id.search_progressBar)
+        searchProgressBar= findViewById(R.id.search_progressBar)
         searchEditText = findViewById(R.id.search_editText)
         searchButton = findViewById(R.id.search_button)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -52,13 +49,13 @@ class MainActivity : AppCompatActivity(), AppModel.View
         }
         searchButton.setOnClickListener{
             showProgressBar()
-            presentor.searchAlbubs(searchEditText.text.toString())}
+            presenter.searchAlbums(searchEditText.text.toString())}
 
         searchEditText.setOnEditorActionListener { v, actionId, event ->
             if(actionId == EditorInfo.IME_ACTION_SEARCH)
             {
                 showProgressBar()
-                presentor.searchAlbubs(searchEditText.text.toString())
+                presenter.searchAlbums(searchEditText.text.toString())
                 true
             }
             else
@@ -67,7 +64,7 @@ class MainActivity : AppCompatActivity(), AppModel.View
             }
         }
 
-        albumListListener = object : OnAlbumsListIneraxtionListener
+        albumListListener = object : OnAlbumsListInteractionListener
         {
             override fun onItemSelect(position: Int)
             {
@@ -86,7 +83,7 @@ class MainActivity : AppCompatActivity(), AppModel.View
         supportFragmentManager.beginTransaction()
             .add(R.id.container, AlbumFragment(results), AlbumFragment.TAG)
             .commit()
-        presentor.getSongsForAlbum(results.collectionId)
+        presenter.getSongsForAlbum(results.collectionId)
     }
 
     override fun onBackPressed()
@@ -120,9 +117,9 @@ class MainActivity : AppCompatActivity(), AppModel.View
         (supportFragmentManager.findFragmentByTag(AlbumFragment.TAG) as AlbumFragment).setSongsList(items)
     }
 
-    override fun setErrorMessage()
+    override fun setErrorMessage(code: Int)
     {
-        Toast.makeText(this, R.string.download_error, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "${R.string.download_error }: $code", Toast.LENGTH_SHORT).show()
         hideProgressBar()
     }
 
@@ -156,17 +153,17 @@ class MainActivity : AppCompatActivity(), AppModel.View
         hideProgressBar()
     }
 
-    fun showProgressBar()
+    private fun showProgressBar()
     {
-        searchProgreeBar.visibility = View.VISIBLE
+        searchProgressBar.visibility = View.VISIBLE
         searchButton.visibility = View.GONE
     }
 
-    fun hideProgressBar()
+    private fun hideProgressBar()
     {
         if(albumsRecycler.visibility == View.VISIBLE)
         {
-            searchProgreeBar.visibility = View.GONE
+            searchProgressBar.visibility = View.GONE
             searchButton.visibility = View.VISIBLE
         }
         else
@@ -175,14 +172,14 @@ class MainActivity : AppCompatActivity(), AppModel.View
         }
     }
 
-    interface OnAlbumsListIneraxtionListener
+    interface OnAlbumsListInteractionListener
     {
         fun onItemSelect(position: Int)
     }
 
     override fun onDestroy()
     {
-        presentor.detachView()
+        presenter.detachView()
         super.onDestroy()
     }
 }
