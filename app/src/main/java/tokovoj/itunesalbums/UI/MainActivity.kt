@@ -1,63 +1,71 @@
 package tokovoj.itunesalbums.UI
 
-import android.graphics.*
+import android.app.AlertDialog
+import android.content.Context
+import android.content.DialogInterface
+import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
+import android.graphics.PorterDuff
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.view.KeyEvent
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.ProgressBar
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import tokovoj.itunesalbums.AppModel
 import tokovoj.itunesalbums.Data.Results
 import tokovoj.itunesalbums.Network.Network
-import tokovoj.itunesalbums.Network.SearchAlbumsCallback
+import tokovoj.itunesalbums.Presentor.MainPresentor
 import tokovoj.itunesalbums.R
 
-class MainActivity : AppCompatActivity(), AlbumFragment.OnFragmentInteractionListener
+class MainActivity : AppCompatActivity(), AppModel.View
 {
     private lateinit var albumsRecycler: RecyclerView
-    lateinit var net: Network
     lateinit var list: List<Results>
-    lateinit var albumListListener: OnAlbumsListIneraxtionListener
-    lateinit var searchButton: Button
+    private lateinit var albumListListener: OnAlbumsListIneraxtionListener
+    private lateinit var searchButton: Button
+    private lateinit var searchEditText: EditText
+    private lateinit var searchProgreeBar: ProgressBar
+    private lateinit var presentor: AppModel.Presentor
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        net = Network()
+        presentor = MainPresentor(Network())
+        presentor.attachView(this)
+
+        searchProgreeBar= findViewById(R.id.search_progressBar)
+        searchEditText = findViewById(R.id.search_editText)
         searchButton = findViewById(R.id.search_button)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            searchButton.background.colorFilter = BlendModeColorFilter(0xD32F2F, BlendMode.SRC_ATOP)
+        }
+        else
+        {
+            searchButton.background.setColorFilter(0xD32F2F, PorterDuff.Mode.MULTIPLY)
+        }
         searchButton.setOnClickListener{
-            findViewById<ProgressBar>(R.id.search_progressBar).visibility = View.VISIBLE
-            it.visibility = View.GONE
-            net.searchAlbums(findViewById<EditText>(R.id.search_editText).text.toString(),
-            object: SearchAlbumsCallback
+            showProgressBar()
+            presentor.searchAlbubs(searchEditText.text.toString())}
+
+        searchEditText.setOnEditorActionListener { v, actionId, event ->
+            if(actionId == EditorInfo.IME_ACTION_SEARCH)
             {
-                private fun selector(it: Results): String = it.collectionName
-
-                override fun onComplete(count: Int, items: List<Results>)
-                {
-                    Log.d("MAIN", "onComplete: $count")
-                    list = items.sortedBy {selector(it)}
-                    findViewById<ProgressBar>(R.id.search_progressBar).visibility = View.GONE
-                    it.visibility = View.VISIBLE
-                    albumsRecycler.adapter = AlbumsRecyclerViewAdapter(list, albumListListener)
-                }
-                override fun onCompleteError(code: Int)
-                {
-                    Log.d("MAIN", "ocCompleteError: $code")
-                }
-
-                override fun onFailture()
-                {
-                    Log.d("MAIN", "ocFailture: ")
-                }
-
-            })}
+                showProgressBar()
+                presentor.searchAlbubs(searchEditText.text.toString())
+                true
+            }
+            else
+            {
+                false
+            }
+        }
 
         albumListListener = object : OnAlbumsListIneraxtionListener
         {
@@ -66,7 +74,6 @@ class MainActivity : AppCompatActivity(), AlbumFragment.OnFragmentInteractionLis
                 setAlbumFragment(list[position])
             }
         }
-
 
         albumsRecycler = findViewById(R.id.albums_recyclerView)
         albumsRecycler.layoutManager = GridLayoutManager(this, 1)
@@ -79,28 +86,7 @@ class MainActivity : AppCompatActivity(), AlbumFragment.OnFragmentInteractionLis
         supportFragmentManager.beginTransaction()
             .add(R.id.container, AlbumFragment(results), AlbumFragment.TAG)
             .commit()
-        net.getAlbumSongs(results.collectionId, object: SearchAlbumsCallback
-        {
-            override fun onComplete(count: Int, items: List<Results>)
-            {
-                Log.d("MAIN", "onComplete: $count")
-                val songs: MutableList<Results> = items.toMutableList()
-                songs.removeAt(0)//todo drugoe reshenie???
-                findViewById<ProgressBar>(R.id.songs_progressBar).visibility = View.GONE
-                (supportFragmentManager.findFragmentByTag(AlbumFragment.TAG) as AlbumFragment).setSongsList(songs)//todo privedenie???
-            }
-
-            override fun onCompleteError(code: Int)
-            {
-                Log.d("MAIN", "ocCompleteError: $code")
-            }
-
-            override fun onFailture()
-            {
-                Log.d("MAIN", "ocFailture: ")
-            }
-
-        })
+        presentor.getSongsForAlbum(results.collectionId)
     }
 
     override fun onBackPressed()
@@ -121,13 +107,82 @@ class MainActivity : AppCompatActivity(), AlbumFragment.OnFragmentInteractionLis
         }
     }
 
-    override fun onFragmentBackPressed()
+    override fun setAlbums(count: Int, items: List<Results>)
     {
+        hideProgressBar()
+        list = items
+        albumsRecycler.adapter = AlbumsRecyclerViewAdapter(list, albumListListener)
+    }
 
+    override fun setSongs(count: Int, items: List<Results>)
+    {
+        findViewById<ProgressBar>(R.id.songs_progressBar).visibility = View.GONE
+        (supportFragmentManager.findFragmentByTag(AlbumFragment.TAG) as AlbumFragment).setSongsList(items)
+    }
+
+    override fun setErrorMessage()
+    {
+        Toast.makeText(this, R.string.download_error, Toast.LENGTH_SHORT).show()
+        hideProgressBar()
+    }
+
+    override fun setBadRequestMessage()
+    {
+        Toast.makeText(this, R.string.bad_request_message, Toast.LENGTH_SHORT).show()
+        hideProgressBar()
+    }
+
+    override fun setServerErrorMessage()
+    {
+        Toast.makeText(this, R.string.server_error_message, Toast.LENGTH_SHORT).show()
+        hideProgressBar()
+    }
+
+    override fun setConnectionLostMessage()
+    {
+        hideProgressBar()
+        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.connection_lost_error)
+            .setMessage(R.string.connection_lost_error_message)
+            .setCancelable(true)
+            .setPositiveButton(R.string.ok) { dialog: DialogInterface, which: Int -> dialog.cancel()}
+        val alertDialog: AlertDialog = builder.create()
+        alertDialog.show()
+    }
+
+    override fun setNoResultMessage()
+    {
+        Toast.makeText(this, R.string.no_result_found, Toast.LENGTH_SHORT).show()
+        hideProgressBar()
+    }
+
+    fun showProgressBar()
+    {
+        searchProgreeBar.visibility = View.VISIBLE
+        searchButton.visibility = View.GONE
+    }
+
+    fun hideProgressBar()
+    {
+        if(albumsRecycler.visibility == View.VISIBLE)
+        {
+            searchProgreeBar.visibility = View.GONE
+            searchButton.visibility = View.VISIBLE
+        }
+        else
+        {
+            findViewById<ProgressBar>(R.id.songs_progressBar).visibility = View.GONE
+        }
     }
 
     interface OnAlbumsListIneraxtionListener
     {
         fun onItemSelect(position: Int)
+    }
+
+    override fun onDestroy()
+    {
+        presentor.detachView()
+        super.onDestroy()
     }
 }

@@ -11,10 +11,6 @@ interface ItunesApi
     fun searchAlbums(@Query("term") term: String, @Query("media") media: String, @Query("entity") entity: String, @Query("limit") limit: Int): Call<AlbumData>
 
     @GET("lookup")
-    fun getAlbumById(@Query("id") id: Long, @Query("entity") entity: String): Call<AlbumData>
-
-    @GET("lookup")
-    fun getAlbumById(@Query("id") id: Long): Call<AlbumData>
-
+    fun getAlbumById(@Query("id") id: Long, @Query("entity") entity: String, @Query("limit") limit: Int): Call<AlbumData>
 
 }

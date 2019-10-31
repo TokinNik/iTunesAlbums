@@ -3,7 +3,7 @@ package tokovoj.itunesalbums.Network
 import tokovoj.itunesalbums.Data.Results
 
 
-interface SearchAlbumsCallback
+interface SearchQueryCallback
 {
     fun onComplete(count: Int, items: List<Results>)
 

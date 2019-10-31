@@ -4,32 +4,27 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import tokovoj.itunesalbums.AppModel
 import tokovoj.itunesalbums.Data.AlbumData
 
-class Network()
+class Network() : AppModel.Model
 {
-    var retrofit: Retrofit = Retrofit.Builder()
+    private var retrofit: Retrofit = Retrofit.Builder()
         .baseUrl("https://itunes.apple.com/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-    var itunesApi: ItunesApi = retrofit.create()
+    private var itunesApi: ItunesApi = retrofit.create()
 
-    fun searchAlbums(term: String, callback: SearchAlbumsCallback)
+    override fun searchAlbums(term: String, callback: SearchQueryCallback)
     {
         val albumData: Call<AlbumData> = itunesApi.searchAlbums(term, "music", "album", 200)
-        albumData.enqueue(SearchAlbumsEnqueue(callback))
+        albumData.enqueue(SearchQueryEnqueue(callback))
     }
 
-    fun getAlbumById(id: Long, callback: SearchAlbumsCallback)
+    override fun getAlbumSongs(collectionId: Long, callback: SearchQueryCallback)
     {
-        val albumData: Call<AlbumData> = itunesApi.getAlbumById(id, "album")
-        albumData.enqueue(GetAlbumByIdEngueue(callback))
-    }
-
-    fun getAlbumSongs(collectionId: Long, callback: SearchAlbumsCallback)
-    {
-        val albumData: Call<AlbumData> = itunesApi.getAlbumById(collectionId, "song")
-        albumData.enqueue(SearchAlbumsEnqueue(callback))
+        val albumData: Call<AlbumData> = itunesApi.getAlbumById(collectionId, "song", 200)
+        albumData.enqueue(SearchQueryEnqueue(callback))
     }
 
 

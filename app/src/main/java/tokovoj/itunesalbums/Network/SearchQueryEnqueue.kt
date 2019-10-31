@@ -5,13 +5,13 @@ import retrofit2.Callback
 import retrofit2.Response
 import tokovoj.itunesalbums.Data.AlbumData
 
-class GetAlbumByIdEngueue (val callback: SearchAlbumsCallback) : Callback<AlbumData>
+class SearchQueryEnqueue(val callback: SearchQueryCallback) : Callback<AlbumData>
 {
     override fun onResponse(call: Call<AlbumData>, response: Response<AlbumData>)
     {
         if (response.isSuccessful && response.body() != null)
         {
-            callback.onComplete(response.body()!!.resultCount, response.body()!!.results)//todo non-null ???
+            callback.onComplete(response.body()!!.resultCount, response.body()!!.results)
         }
         else
         {

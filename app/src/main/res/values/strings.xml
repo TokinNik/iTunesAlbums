@@ -1,8 +1,16 @@
 <resources>
     <string name="app_name">iTunesAlbums</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="search_hint">Поиск...</string>
+    <string name="search_hint">Поиск…</string>
     <string name="search">Найти</string>
+    <string name="no_result_found">Ничего не найдено</string>
+    <string name="connection_lost_error">Ошибка соединения</string>
+    <string name="connection_lost_error_message">Не удалось подключиться к серверу, проверьте подключение к сети
+    </string>
+    <string name="ok">OK</string>
+    <string name="download_error">Download error</string>
+    <string name="bad_request_message">Неверный запрос к серверу</string>
+    <string name="server_error_message">Ошибка сервера</string>
+    <string name="release">Релиз:</string>
+    <string name="n_tracks">трэков</string>
+    <string name="E">E</string>
 </resources>

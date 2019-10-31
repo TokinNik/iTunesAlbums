@@ -10,7 +10,9 @@
             tools:src="@drawable/red_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/album_imageView" android:scaleType="center"/>
+            android:id="@+id/album_imageView"
+            android:scaleType="center"
+            android:background="@color/colorAccent"/>
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
