@@ -27,6 +27,8 @@ class MainActivity : MvpAppCompatActivity(), MainView
 
     private val presenter by moxyPresenter { MainPresenter() }
 
+    private var isItemSelect = false
+
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -88,6 +90,7 @@ class MainActivity : MvpAppCompatActivity(), MainView
     {
         if(albums_recyclerView.visibility == View.GONE)
         {
+            isItemSelect = false
             albums_recyclerView.visibility = View.VISIBLE
             search_linearLayout.visibility = View.VISIBLE
             supportFragmentManager.findFragmentByTag(AlbumFragment.TAG)?.let{
@@ -113,8 +116,12 @@ class MainActivity : MvpAppCompatActivity(), MainView
                 {
                     override fun onItemSelect(position: Int)
                     {
-                        hideKeyboard()
-                        setAlbumFragment(list[position])
+                        if (!isItemSelect)
+                        {
+                            isItemSelect = true
+                            hideKeyboard()
+                            setAlbumFragment(list[position])
+                        }
                     }
                 }
             )
