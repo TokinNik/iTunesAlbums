@@ -11,6 +11,14 @@ interface MainView : MvpView {
 
     fun setAlbums(count: Int, items: List<Results>)
 
+    fun showProgressBar()
+
+    fun hideKeyboard()
+
+    fun hideProgressBar()
+
+    fun getQuery(): String
+
     fun setErrorMessage(code: Int)
 
     fun setConnectionLostMessage()

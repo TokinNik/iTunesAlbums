@@ -17,6 +17,13 @@ class MainPresenter : MvpPresenter<MainView>()
 {
     private val model = Network()
 
+    fun onSearchClick()
+    {
+        viewState.hideKeyboard()
+        viewState.hideProgressBar()
+        searchAlbums(viewState.getQuery())
+    }
+
     fun searchAlbums(query: String)
     {
         model.searchAlbums(query)

@@ -51,17 +51,13 @@ class MainActivity : MvpAppCompatActivity(), MainView
     private fun initOnClick()
     {
         search_button.setOnClickListener{
-            showProgressBar()
-            hideKeyboard()
-            presenter.searchAlbums(search_editText.text.toString())
+            presenter.onSearchClick()
         }
 
         search_editText.setOnEditorActionListener { _, actionId, _ ->
             if(actionId == EditorInfo.IME_ACTION_SEARCH)
             {
-                showProgressBar()
-                hideKeyboard()
-                presenter.searchAlbums(search_editText.text.toString())
+                presenter.onSearchClick()
                 true
             }
             else
@@ -127,6 +123,8 @@ class MainActivity : MvpAppCompatActivity(), MainView
             )
     }
 
+    override fun getQuery(): String = search_editText.text.toString()
+
     override fun setErrorMessage(code: Int)
     {
         Toast.makeText(this, "${R.string.download_error }: $code", Toast.LENGTH_SHORT).show()
@@ -163,19 +161,19 @@ class MainActivity : MvpAppCompatActivity(), MainView
         hideProgressBar()
     }
 
-    private fun showProgressBar()
+    override fun showProgressBar()
     {
         search_progressBar.visibility = View.VISIBLE
         search_button.visibility = View.GONE
     }
 
-    private fun hideProgressBar()
+    override fun hideProgressBar()
     {
         search_progressBar.visibility = View.GONE
         search_button.visibility = View.VISIBLE
     }
 
-    private fun hideKeyboard()
+    override fun hideKeyboard()
     {
         (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(search_button.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
