@@ -1,10 +1,15 @@
 package tokovoj.itunesalbums.ui.album
 
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.observers.DisposableSingleObserver
+import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import moxy.MvpPresenter
-import tokovoj.itunesalbums.data.Results
+import retrofit2.Response
+import tokovoj.itunesalbums.data.AlbumData
 import tokovoj.itunesalbums.network.Network
-import tokovoj.itunesalbums.network.SearchQueryCallback
+import java.net.UnknownHostException
+import java.util.concurrent.TimeoutException
 
 @InjectViewState
 class AlbumFragmentPresenter : MvpPresenter<AlbumFragmentView>() {
@@ -13,30 +18,41 @@ class AlbumFragmentPresenter : MvpPresenter<AlbumFragmentView>() {
 
     fun getSongsForAlbum(id: Long)
     {
-        model.getAlbumSongs(id, object: SearchQueryCallback
-        {
-            override fun onComplete(count: Int, items: List<Results>)
-            {
-                if(count == 0)
+        model.getAlbumById(id)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                object : DisposableSingleObserver<Response<AlbumData>>()
                 {
-                    viewState.setNoResultMessage()
-                }
-                else
-                {
-                    viewState.setSongs(count, items.subList(1, items.size))
-                }
-            }
+                    override fun onSuccess(t: Response<AlbumData>)
+                    {
+                        if (t.isSuccessful && t.body() != null)
+                        {
+                            if(t.body()!!.resultCount == 0)
+                            {
+                                viewState.setNoResultMessage()
+                            }
+                            else
+                            {
+                                viewState.setSongs(t.body()!!.resultCount, t.body()!!.results)
+                            }
+                        }
+                        else
+                        {
+                            parseErrorCode(t.code())
+                        }
+                    }
 
-            override fun onCompleteError(code: Int)
-            {
-                parseErrorCode(code)
-            }
-
-            override fun onFailure()
-            {
-                viewState.setConnectionLostMessage()
-            }
-        })
+                    override fun onError(e: Throwable)
+                    {
+                        when (e)
+                        {
+                            is UnknownHostException -> viewState.setConnectionLostMessage()
+                            is TimeoutException -> viewState.setConnectionLostMessage()
+                        }
+                    }
+                }
+            )
     }
 
     fun parseErrorCode(code: Int)

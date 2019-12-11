@@ -13,7 +13,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 import moxy.MvpAppCompatActivity
 import moxy.ktx.moxyPresenter
@@ -26,12 +25,6 @@ class MainActivity : MvpAppCompatActivity(), MainView
 {
     lateinit var list: List<Results>
 
-    private lateinit var albumsRecycler: RecyclerView
-    private lateinit var albumListListener: OnAlbumsListInteractionListener
-    private lateinit var searchButton: Button
-    private lateinit var searchEditText: EditText
-    private lateinit var searchProgressBar: ProgressBar
-
     private val presenter by moxyPresenter { MainPresenter() }
 
 
@@ -40,29 +33,33 @@ class MainActivity : MvpAppCompatActivity(), MainView
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        searchProgressBar= findViewById(R.id.search_progressBar)
-        searchEditText = findViewById(R.id.search_editText)
-        searchButton = findViewById(R.id.search_button)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         {
-            searchButton.background.colorFilter = BlendModeColorFilter(0xD32F2F, BlendMode.SRC_ATOP)
+            search_button.background.colorFilter = BlendModeColorFilter(0xD32F2F, BlendMode.SRC_ATOP)
         }
         else
         {
-            searchButton.background.setColorFilter(0xD32F2F, PorterDuff.Mode.MULTIPLY)
+            search_button.background.setColorFilter(0xD32F2F, PorterDuff.Mode.MULTIPLY)
         }
-        searchButton.setOnClickListener{
+        
+        initOnClick()
+        initRecyclerView()
+    }
+    
+    private fun initOnClick()
+    {
+        search_button.setOnClickListener{
             showProgressBar()
             hideKeyboard()
-            presenter.searchAlbums(searchEditText.text.toString())
+            presenter.searchAlbums(search_editText.text.toString())
         }
 
-        searchEditText.setOnEditorActionListener { _, actionId, _ ->
+        search_editText.setOnEditorActionListener { _, actionId, _ ->
             if(actionId == EditorInfo.IME_ACTION_SEARCH)
             {
                 showProgressBar()
                 hideKeyboard()
-                presenter.searchAlbums(searchEditText.text.toString())
+                presenter.searchAlbums(search_editText.text.toString())
                 true
             }
             else
@@ -70,24 +67,16 @@ class MainActivity : MvpAppCompatActivity(), MainView
                 false
             }
         }
+    }
 
-        albumListListener = object :
-            OnAlbumsListInteractionListener
-        {
-            override fun onItemSelect(position: Int)
-            {
-                hideKeyboard()
-                setAlbumFragment(list[position])
-            }
-        }
-
-        albumsRecycler = findViewById(R.id.albums_recyclerView)
-        albumsRecycler.layoutManager = GridLayoutManager(this, 1)
+    private fun initRecyclerView()
+    {
+        albums_recyclerView.layoutManager = GridLayoutManager(this, 1)
     }
 
     private fun setAlbumFragment(results: Results)
     {
-        albumsRecycler.visibility = View.GONE
+        albums_recyclerView.visibility = View.GONE
         search_linearLayout.visibility = View.GONE
         supportFragmentManager.beginTransaction()
             .add(R.id.container,
@@ -97,9 +86,9 @@ class MainActivity : MvpAppCompatActivity(), MainView
 
     override fun onBackPressed()
     {
-        if(albumsRecycler.visibility == View.GONE)
+        if(albums_recyclerView.visibility == View.GONE)
         {
-            albumsRecycler.visibility = View.VISIBLE
+            albums_recyclerView.visibility = View.VISIBLE
             search_linearLayout.visibility = View.VISIBLE
             supportFragmentManager.findFragmentByTag(AlbumFragment.TAG)?.let{
                 supportFragmentManager.beginTransaction()
@@ -117,10 +106,17 @@ class MainActivity : MvpAppCompatActivity(), MainView
     {
         hideProgressBar()
         list = items
-        albumsRecycler.adapter =
+        albums_recyclerView.adapter =
             AlbumsRecyclerViewAdapter(
-                list,
-                albumListListener
+                data = list,
+                listener = object : OnAlbumsListInteractionListener
+                {
+                    override fun onItemSelect(position: Int)
+                    {
+                        hideKeyboard()
+                        setAlbumFragment(list[position])
+                    }
+                }
             )
     }
 
@@ -162,19 +158,19 @@ class MainActivity : MvpAppCompatActivity(), MainView
 
     private fun showProgressBar()
     {
-        searchProgressBar.visibility = View.VISIBLE
-        searchButton.visibility = View.GONE
+        search_progressBar.visibility = View.VISIBLE
+        search_button.visibility = View.GONE
     }
 
     private fun hideProgressBar()
     {
-        searchProgressBar.visibility = View.GONE
-        searchButton.visibility = View.VISIBLE
+        search_progressBar.visibility = View.GONE
+        search_button.visibility = View.VISIBLE
     }
 
     private fun hideKeyboard()
     {
-        (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(searchButton.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+        (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(search_button.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     interface OnAlbumsListInteractionListener
