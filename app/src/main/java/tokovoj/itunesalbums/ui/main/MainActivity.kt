@@ -1,40 +1,44 @@
-package tokovoj.itunesalbums.UI
+package tokovoj.itunesalbums.ui.main
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.PorterDuff
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import tokovoj.itunesalbums.AppModel
-import tokovoj.itunesalbums.data.Results
-import tokovoj.itunesalbums.network.Network
-import tokovoj.itunesalbums.presenter.MainPresenter
+import kotlinx.android.synthetic.main.activity_main.*
+import moxy.MvpAppCompatActivity
+import moxy.ktx.moxyPresenter
 import tokovoj.itunesalbums.R
+import tokovoj.itunesalbums.data.Results
+import tokovoj.itunesalbums.ui.album.AlbumFragment
 
-class MainActivity : AppCompatActivity(), AppModel.View
+
+class MainActivity : MvpAppCompatActivity(), MainView
 {
-    private lateinit var albumsRecycler: RecyclerView
     lateinit var list: List<Results>
+
+    private lateinit var albumsRecycler: RecyclerView
     private lateinit var albumListListener: OnAlbumsListInteractionListener
     private lateinit var searchButton: Button
     private lateinit var searchEditText: EditText
     private lateinit var searchProgressBar: ProgressBar
-    private lateinit var presenter: AppModel.Presenter
+
+    private val presenter by moxyPresenter { MainPresenter() }
+
 
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        presenter = MainPresenter(Network())
-        presenter.attachView(this)
 
         searchProgressBar= findViewById(R.id.search_progressBar)
         searchEditText = findViewById(R.id.search_editText)
@@ -49,12 +53,15 @@ class MainActivity : AppCompatActivity(), AppModel.View
         }
         searchButton.setOnClickListener{
             showProgressBar()
-            presenter.searchAlbums(searchEditText.text.toString())}
+            hideKeyboard()
+            presenter.searchAlbums(searchEditText.text.toString())
+        }
 
-        searchEditText.setOnEditorActionListener { v, actionId, event ->
+        searchEditText.setOnEditorActionListener { _, actionId, _ ->
             if(actionId == EditorInfo.IME_ACTION_SEARCH)
             {
                 showProgressBar()
+                hideKeyboard()
                 presenter.searchAlbums(searchEditText.text.toString())
                 true
             }
@@ -64,10 +71,12 @@ class MainActivity : AppCompatActivity(), AppModel.View
             }
         }
 
-        albumListListener = object : OnAlbumsListInteractionListener
+        albumListListener = object :
+            OnAlbumsListInteractionListener
         {
             override fun onItemSelect(position: Int)
             {
+                hideKeyboard()
                 setAlbumFragment(list[position])
             }
         }
@@ -79,11 +88,11 @@ class MainActivity : AppCompatActivity(), AppModel.View
     private fun setAlbumFragment(results: Results)
     {
         albumsRecycler.visibility = View.GONE
-        findViewById<LinearLayout>(R.id.search_linearLayout).visibility = View.GONE
+        search_linearLayout.visibility = View.GONE
         supportFragmentManager.beginTransaction()
-            .add(R.id.container, AlbumFragment(results), AlbumFragment.TAG)
+            .add(R.id.container,
+                AlbumFragment(results), AlbumFragment.TAG)
             .commit()
-        presenter.getSongsForAlbum(results.collectionId)
     }
 
     override fun onBackPressed()
@@ -91,7 +100,7 @@ class MainActivity : AppCompatActivity(), AppModel.View
         if(albumsRecycler.visibility == View.GONE)
         {
             albumsRecycler.visibility = View.VISIBLE
-            findViewById<LinearLayout>(R.id.search_linearLayout).visibility = View.VISIBLE
+            search_linearLayout.visibility = View.VISIBLE
             supportFragmentManager.findFragmentByTag(AlbumFragment.TAG)?.let{
                 supportFragmentManager.beginTransaction()
                     .remove(it)
@@ -108,13 +117,11 @@ class MainActivity : AppCompatActivity(), AppModel.View
     {
         hideProgressBar()
         list = items
-        albumsRecycler.adapter = AlbumsRecyclerViewAdapter(list, albumListListener)
-    }
-
-    override fun setSongs(count: Int, items: List<Results>)
-    {
-        findViewById<ProgressBar>(R.id.songs_progressBar).visibility = View.GONE
-        (supportFragmentManager.findFragmentByTag(AlbumFragment.TAG) as AlbumFragment).setSongsList(items)
+        albumsRecycler.adapter =
+            AlbumsRecyclerViewAdapter(
+                list,
+                albumListListener
+            )
     }
 
     override fun setErrorMessage(code: Int)
@@ -142,7 +149,7 @@ class MainActivity : AppCompatActivity(), AppModel.View
         builder.setTitle(R.string.connection_lost_error)
             .setMessage(R.string.connection_lost_error_message)
             .setCancelable(true)
-            .setPositiveButton(R.string.ok) { dialog: DialogInterface, which: Int -> dialog.cancel()}
+            .setPositiveButton(R.string.ok) { dialog: DialogInterface, _ -> dialog.cancel()}
         val alertDialog: AlertDialog = builder.create()
         alertDialog.show()
     }
@@ -161,15 +168,13 @@ class MainActivity : AppCompatActivity(), AppModel.View
 
     private fun hideProgressBar()
     {
-        if(albumsRecycler.visibility == View.VISIBLE)
-        {
-            searchProgressBar.visibility = View.GONE
-            searchButton.visibility = View.VISIBLE
-        }
-        else
-        {
-            findViewById<ProgressBar>(R.id.songs_progressBar).visibility = View.GONE
-        }
+        searchProgressBar.visibility = View.GONE
+        searchButton.visibility = View.VISIBLE
+    }
+
+    private fun hideKeyboard()
+    {
+        (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(searchButton.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
     }
 
     interface OnAlbumsListInteractionListener
@@ -179,7 +184,6 @@ class MainActivity : AppCompatActivity(), AppModel.View
 
     override fun onDestroy()
     {
-        presenter.detachView()
         super.onDestroy()
     }
 }

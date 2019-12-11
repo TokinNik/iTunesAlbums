@@ -1,4 +1,4 @@
-package tokovoj.itunesalbums.UI
+package tokovoj.itunesalbums.ui.album
 
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +15,9 @@ class SongsRecyclerViewAdapter(data: List<Results>) : RecyclerView.Adapter<Songs
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder
     {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.song_item, parent, false))
+        return ViewHolder(
+            LayoutInflater.from(parent.context).inflate(R.layout.song_item, parent, false)
+        )
     }
 
     override fun getItemCount(): Int = dataList.size
