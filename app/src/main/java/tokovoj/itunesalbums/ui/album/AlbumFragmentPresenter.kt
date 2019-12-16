@@ -6,18 +6,26 @@ import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import retrofit2.Response
+import tokovoj.itunesalbums.App
 import tokovoj.itunesalbums.data.AlbumData
 import tokovoj.itunesalbums.network.Network
 import java.net.UnknownHostException
 import java.util.concurrent.TimeoutException
+import javax.inject.Inject
 
 @InjectViewState
 class AlbumFragmentPresenter : MvpPresenter<AlbumFragmentView>() {
 
-    private val model = Network()
+    @Inject
+    lateinit var model: Network
+
+    init {
+        App.networkComponent.inject(this)
+    }
 
     fun getSongsForAlbum(id: Long)
     {
+        viewState.showProgressBar()
         model.getAlbumById(id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -34,13 +42,14 @@ class AlbumFragmentPresenter : MvpPresenter<AlbumFragmentView>() {
                             }
                             else
                             {
-                                viewState.setSongs(t.body()!!.resultCount, t.body()!!.results)
+                                viewState.setSongs(t.body()!!.resultCount, t.body()!!.results.subList(1,t.body()!!.results.size))
                             }
                         }
                         else
                         {
                             parseErrorCode(t.code())
                         }
+                        viewState.hideProgressBar()
                     }
 
                     override fun onError(e: Throwable)
@@ -50,6 +59,7 @@ class AlbumFragmentPresenter : MvpPresenter<AlbumFragmentView>() {
                             is UnknownHostException -> viewState.setConnectionLostMessage()
                             is TimeoutException -> viewState.setConnectionLostMessage()
                         }
+                        viewState.hideProgressBar()
                     }
                 }
             )

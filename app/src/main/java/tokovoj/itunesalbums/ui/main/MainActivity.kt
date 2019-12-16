@@ -51,13 +51,13 @@ class MainActivity : MvpAppCompatActivity(), MainView
     private fun initOnClick()
     {
         search_button.setOnClickListener{
-            presenter.onSearchClick()
+            presenter.onSearchClick(search_editText.text.toString())
         }
 
         search_editText.setOnEditorActionListener { _, actionId, _ ->
             if(actionId == EditorInfo.IME_ACTION_SEARCH)
             {
-                presenter.onSearchClick()
+                presenter.onSearchClick(search_editText.text.toString())
                 true
             }
             else
@@ -103,7 +103,6 @@ class MainActivity : MvpAppCompatActivity(), MainView
 
     override fun setAlbums(count: Int, items: List<Results>)
     {
-        hideProgressBar()
         list = items
         albums_recyclerView.adapter =
             AlbumsRecyclerViewAdapter(
@@ -123,29 +122,23 @@ class MainActivity : MvpAppCompatActivity(), MainView
             )
     }
 
-    override fun getQuery(): String = search_editText.text.toString()
-
     override fun setErrorMessage(code: Int)
     {
         Toast.makeText(this, "${R.string.download_error }: $code", Toast.LENGTH_SHORT).show()
-        hideProgressBar()
     }
 
     override fun setBadRequestMessage()
     {
         Toast.makeText(this, R.string.bad_request_message, Toast.LENGTH_SHORT).show()
-        hideProgressBar()
     }
 
     override fun setServerErrorMessage()
     {
         Toast.makeText(this, R.string.server_error_message, Toast.LENGTH_SHORT).show()
-        hideProgressBar()
     }
 
     override fun setConnectionLostMessage()
     {
-        hideProgressBar()
         val builder: AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setTitle(R.string.connection_lost_error)
             .setMessage(R.string.connection_lost_error_message)
@@ -158,7 +151,6 @@ class MainActivity : MvpAppCompatActivity(), MainView
     override fun setNoResultMessage()
     {
         Toast.makeText(this, R.string.no_result_found, Toast.LENGTH_SHORT).show()
-        hideProgressBar()
     }
 
     override fun showProgressBar()

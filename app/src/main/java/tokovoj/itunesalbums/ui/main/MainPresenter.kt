@@ -6,25 +6,33 @@ import io.reactivex.schedulers.Schedulers
 import moxy.InjectViewState
 import moxy.MvpPresenter
 import retrofit2.Response
+import tokovoj.itunesalbums.App
 import tokovoj.itunesalbums.data.AlbumData
 import tokovoj.itunesalbums.data.Results
 import tokovoj.itunesalbums.network.Network
 import java.net.UnknownHostException
 import java.util.concurrent.TimeoutException
+import javax.inject.Inject
+
 
 @InjectViewState
 class MainPresenter : MvpPresenter<MainView>()
 {
-    private val model = Network()
+    @Inject
+    lateinit var model : Network
 
-    fun onSearchClick()
-    {
-        viewState.hideKeyboard()
-        viewState.hideProgressBar()
-        searchAlbums(viewState.getQuery())
+    init {
+        App.networkComponent.inject(this)
     }
 
-    fun searchAlbums(query: String)
+    fun onSearchClick(query: String)
+    {
+        viewState.hideKeyboard()
+        viewState.showProgressBar()
+        searchAlbums(query)
+    }
+
+    private fun searchAlbums(query: String)
     {
         model.searchAlbums(query)
             .subscribeOn(Schedulers.io())
@@ -51,6 +59,7 @@ class MainPresenter : MvpPresenter<MainView>()
                         {
                             parseErrorCode(t.code())
                         }
+                        viewState.hideProgressBar()
                     }
 
                     override fun onError(e: Throwable)
@@ -60,6 +69,7 @@ class MainPresenter : MvpPresenter<MainView>()
                             is UnknownHostException -> viewState.setConnectionLostMessage()
                             is TimeoutException -> viewState.setConnectionLostMessage()
                         }
+                        viewState.hideProgressBar()
                     }
                 }
             )

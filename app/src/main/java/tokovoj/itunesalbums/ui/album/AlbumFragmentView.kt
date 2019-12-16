@@ -10,6 +10,10 @@ interface AlbumFragmentView : MvpView {
 
     fun setSongs(count: Int, items: List<Results>)
 
+    fun showProgressBar()
+
+    fun hideProgressBar()
+
     fun setErrorMessage(code: Int)
 
     fun setConnectionLostMessage()

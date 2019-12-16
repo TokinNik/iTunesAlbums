@@ -66,7 +66,6 @@ class AlbumFragment(var results: Results) : MvpAppCompatFragment(), AlbumFragmen
 
     override fun setSongs(count: Int, items: List<Results>)
     {
-        songs_progressBar.visibility = View.GONE
         songs_recyclerView.adapter =
             SongsRecyclerViewAdapter(items)
         println(items.size)
@@ -75,30 +74,26 @@ class AlbumFragment(var results: Results) : MvpAppCompatFragment(), AlbumFragmen
     override fun setErrorMessage(code: Int)
     {
         Toast.makeText(activity, "${R.string.download_error }: $code", Toast.LENGTH_SHORT).show()
-        songs_progressBar.visibility = View.GONE
     }
 
     override fun setBadRequestMessage()
     {
         Toast.makeText(activity, R.string.bad_request_message, Toast.LENGTH_SHORT).show()
-        songs_progressBar.visibility = View.GONE
     }
 
     override fun setServerErrorMessage()
     {
         Toast.makeText(activity, R.string.server_error_message, Toast.LENGTH_SHORT).show()
-        songs_progressBar.visibility = View.GONE
     }
 
     override fun setNoResultMessage()
     {
         Toast.makeText(activity, R.string.no_result_found, Toast.LENGTH_SHORT).show()
-        songs_progressBar.visibility = View.GONE
     }
 
     override fun setConnectionLostMessage()
     {
-        songs_progressBar.visibility = View.GONE
+
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         builder.setTitle(R.string.connection_lost_error)
             .setMessage(R.string.connection_lost_error_message)
@@ -106,5 +101,15 @@ class AlbumFragment(var results: Results) : MvpAppCompatFragment(), AlbumFragmen
             .setPositiveButton(R.string.ok) { dialog: DialogInterface, _ -> dialog.cancel()}
         val alertDialog: AlertDialog = builder.create()
         alertDialog.show()
+    }
+
+    override fun showProgressBar()
+    {
+        songs_progressBar.visibility = View.VISIBLE
+    }
+
+    override fun hideProgressBar()
+    {
+        songs_progressBar.visibility = View.GONE
     }
 }
